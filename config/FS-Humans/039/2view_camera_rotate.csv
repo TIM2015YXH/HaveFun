@@ -1,0 +1,3 @@
+zero123_weight, radius, polar, azimuth, image
+1, 3.2, 90, 0, data/FS-Humans/training/039/basecolor/0.png
+1, 3.2, 90, -180, /cpfs/shared/public/chenxingyu/few_shot_data/xavatar/training/039/basecolor/4.png

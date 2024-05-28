@@ -1,0 +1,9 @@
+zero123_weight,radius,polar,azimuth,image
+1,3.2,90,-90,data/FS-DART/training/004/basecolor/0.png
+1,3.2,90,-45,data/FS-DART/training/004/basecolor/1.png
+1,3.2,90,0,data/FS-DART/training/004/basecolor/2.png
+1,3.2,90,45,data/FS-DART/training/004/basecolor/3.png
+1,3.2,90,90,data/FS-DART/training/004/basecolor/4.png
+1,3.2,90,135,data/FS-DART/training/004/basecolor/5.png
+1,3.2,90,180,data/FS-DART/training/004/basecolor/6.png
+1,3.2,90,225,data/FS-DART/training/004/basecolor/7.png

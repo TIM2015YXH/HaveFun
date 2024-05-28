@@ -141,7 +141,7 @@ If you find the codes of this work or the associated FS-Human/DART dataset helpf
 
 ## :newspaper_roll: License
 
-Distributed under the S-Lab License. See `LICENSE` for more information.
+See `LICENSE` for more information.
 
 ## :raised_hands: Acknowledgements
 

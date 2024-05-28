@@ -1,0 +1,14 @@
+# change the paths accordingly and rename it to paths.yaml
+
+mano_left:
+  /Users/chenxingyu/Tools/mano_v1_2/models/MANO_LEFT.pkl
+mano_right:
+  /Users/chenxingyu/Tools/mano_v1_2/models/MANO_LEFT.pkl
+ckpt_root:
+  /home/zhouyuxiao/workspace/ikhand/ckpt
+log_root:
+  /home/zhouyuxiao/workspace/ikhand/log
+interhand_train:
+  /home/zhouyuxiao/storage/ik_interhand/train
+interhand_val:
+  /home/zhouyuxiao/storage/ik_interhand/val

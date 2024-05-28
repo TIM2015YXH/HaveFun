@@ -1,0 +1,3 @@
+zero123_weight, radius, polar, azimuth, image
+1, 3.2, 90, 0, data/FS-Humans/training/016/basecolor/0.png
+1, 3.2, 90, -180, data/FS-Humans/training/016/basecolor/4.png
