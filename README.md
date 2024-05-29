@@ -9,14 +9,13 @@ Xihe Yang<sup>*</sup>&emsp;Xingyu Chen<sup>*&dagger;</sup>&emsp;Daiheng Gao&emsp
     Xiaobing.AI&emsp;
     SSE, CUHKSZ&emsp;
     FNii, CUHKSZ&emsp;
-    Freelancer&emsp;
     Tsinghua University&emsp;<br>
     <sup>*</sup>equal contribution&emsp;
     <sup>&dagger;</sup>corresponding author 
 </div>
 
 <div>
-   <strong>Arxiv 2024</strong>
+   <strong>Arxiv 2023</strong>
 </div>
 
 <div>
@@ -167,7 +166,7 @@ This work is based on the following amazing opensource projects, thanks a lot to
         primaryClass={cs.CV}
     }
     ```
-* [{Stable-dreamfusion: Text-to-3D with Stable-diffusion](https://github.com/ashawkey/stable-dreamfusion)
+* [Stable-dreamfusion: Text-to-3D with Stable-diffusion](https://github.com/ashawkey/stable-dreamfusion)
     ```
     @misc{stable-dreamfusion,
         Author = {Jiaxiang Tang},
