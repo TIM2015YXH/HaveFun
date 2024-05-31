@@ -60,7 +60,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr_iters', type=int, default=100000, help="lr reduce  for every lr_iters")
     parser.add_argument('--ckpt', type=str, default='latest', help="possible options are ['latest', 'scratch', 'best', 'latest_model']")
     parser.add_argument('--cuda_ray', action='store_true', help="use CUDA raymarching instead of pytorch")
-    parser.add_argument('--taichi_ray', action='store_true', help="use taichi raymarching")
+
     parser.add_argument('--max_steps', type=int, default=1024, help="max num steps sampled per ray (only valid when using --cuda_ray)")
     parser.add_argument('--num_steps', type=int, default=64, help="num steps sampled per ray (only valid when not using --cuda_ray)")
     parser.add_argument('--upsample_steps', type=int, default=32, help="num steps up-sampled per ray (only valid when not using --cuda_ray)")
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     parser.add_argument('--blob_density', type=float, default=5, help="max (center) density for the density blob")
     parser.add_argument('--blob_radius', type=float, default=0.2, help="control the radius for the density blob")
     # network backbone
-    parser.add_argument('--backbone', type=str, default='grid', choices=['grid_tcnn', 'grid', 'vanilla', 'grid_taichi'], help="nerf backbone")
+    parser.add_argument('--backbone', type=str, default='grid', choices=['grid', 'vanilla'], help="nerf backbone")
     parser.add_argument('--optim', type=str, default='adan', choices=['adan', 'adam'], help="optimizer")
     parser.add_argument('--sd_version', type=str, default='2.1', choices=['1.5', '2.0', '2.1'], help="stable diffusion version")
     parser.add_argument('--hf_key', type=str, default=None, help="hugging face Stable diffusion model key")
@@ -174,10 +174,10 @@ if __name__ == '__main__':
     parser.add_argument('--const_ambient_ratio', type=float, default=-1, help="if given, set ambient_ratio to const.")
     parser.add_argument('--real_mesh_scale_path', type=str, default=None, help="How much is template mesh scaled to fit dmtet mesh.")
 
-    ### debugging options
+    # ### debugging options
     parser.add_argument('--save_guidance', action='store_true', help="save images of the per-iteration NeRF renders, added noise, denoised (i.e. guidance), fully-denoised. Useful for debugging, but VERY SLOW and takes lots of memory!")
     parser.add_argument('--save_guidance_interval', type=int, default=10, help="save guidance every X step")
-    parser.add_argument('--debug', action='store_true', help="save intermediate results, es for head")
+    # parser.add_argument('--debug', action='store_true', help="save intermediate results, es for head")
     ### GUI options
     parser.add_argument('--gui', action='store_true', help="start a GUI")
     parser.add_argument('--W', type=int, default=800, help="GUI width")
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_spp', type=int, default=1, help="GUI rendering max sample per pixel")
 
     parser.add_argument('--zero123_config', type=str, default='pretrained/zero123/sd-objaverse-finetune-c_concat-256.yaml', help="config file for zero123")
-    parser.add_argument('--zero123_ckpt', type=str, default='pretrained_dfmodel/zero123/105000.ckpt', help="ckpt for zero123")
+    parser.add_argument('--zero123_ckpt', type=str, default='pretrained_dfmodel/zero123/zero123-xl.ckpt', help="ckpt for zero123")
     parser.add_argument('--zero123_grad_scale', type=str, default='angle', help="whether to scale the gradients based on 'angle' or 'None'")
 
     parser.add_argument('--dataset_size_train', type=int, default=100, help="Length of train dataset i.e. # of iterations per epoch")
@@ -342,18 +342,6 @@ if __name__ == '__main__':
         from nerf.network import NeRFNetwork
     elif opt.backbone == 'grid':
         from nerf.network_grid import NeRFNetwork
-    elif opt.backbone == 'grid_tcnn':
-        from nerf.network_grid_tcnn import NeRFNetwork
-    elif opt.backbone == 'grid_taichi':
-        opt.cuda_ray = False
-        opt.taichi_ray = True
-        import taichi as ti
-        from nerf.network_grid_taichi import NeRFNetwork
-        taichi_half2_opt = True
-        taichi_init_args = {"arch": ti.cuda, "device_memory_GB": 4.0}
-        if taichi_half2_opt:
-            taichi_init_args["half2_vectorization"] = True
-        ti.init(**taichi_init_args)
     else:
         raise NotImplementedError(f'--backbone {opt.backbone} is not implemented!')
 

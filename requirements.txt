@@ -1,28 +1,18 @@
-tqdm
-rich
-ninja
-numpy
-pandas
-scipy
-scikit-learn
-matplotlib
-opencv-python
-imageio
-imageio-ffmpeg
-smplx
-
-
-torch
+torch==1.11.0+cu113
 torch-ema
 einops
 tensorboard
 tensorboardX
+pandas
+imageio-ffmpeg
+matplotlib
+libigl
+smplx
+scikit-learn
+chumpy
 
 # for gui
 dearpygui
-
-# for grid_tcnn
-# git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
 
 # for stable-diffusion
 huggingface_hub
@@ -34,13 +24,14 @@ transformers
 xatlas
 trimesh
 PyMCubes
-pymeshlab
+pymeshlab==2022.2.port4
 git+https://github.com/NVlabs/nvdiffrast/
+git+https://github.com/ashawkey/cubvh
 
 # for zero123
 carvekit-colab
 omegaconf
-pytorch-lightning
+pytorch-lightning==1.6.5
 taming-transformers-rom1504
 kornia
 git+https://github.com/openai/CLIP.git

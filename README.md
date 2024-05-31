@@ -43,7 +43,7 @@ This repository will contain the official implementation of _HAVE-FUN: Human Ava
 ```bash
     conda create --name havefun python=3.8
     conda activate havefun
-    pip install -r requirement.txt
+    pip install -r requirements.txt
 ```
 
 ## Set up Dataset
@@ -61,6 +61,7 @@ Put the download data under data with following folder structure
         └── driving
     ├── FS-DART
         └── training
+        └── init
         └── driving
 ```
 
@@ -81,7 +82,7 @@ We use Zero-1-to-3 as guidance model to constrain the unseen view generation.
 * [Zero-1-to-3](https://github.com/cvlab-columbia/zero123) for diffusion backend.
     We use `zero123-xl.ckpt` by default, and it is hard-coded in `guidance/zero123_utils.py`.
     ```bash
-    cd pretrained/zero123
+    cd pretrained_dfmodel/zero123
     wget https://zero123.cs.columbia.edu/assets/zero123-xl.ckpt
     ```
 For DMTet, we port the pre-generated `32/64/128` resolution tetrahedron grids under `tets`.
@@ -113,9 +114,9 @@ eg.
 ```
 bash scripts/dart_experiments/train_one_exp.sh identity N_view sds_scale
 eg. 
-bash scripts/dart_experiments/train_one_exp.sh 13 2 0.05
-bash scripts/dart_experiments/train_one_exp.sh 13 4 0.03
-bash scripts/dart_experiments/train_one_exp.sh 13 8 0.01
+bash scripts/dart_experiments/train_one_exp.sh 3 2 0.05
+bash scripts/dart_experiments/train_one_exp.sh 3 4 0.03
+bash scripts/dart_experiments/train_one_exp.sh 3 8 0.01
 ```
 
 ### drive one exp

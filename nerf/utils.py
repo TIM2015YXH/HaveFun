@@ -555,16 +555,16 @@ class Trainer(object):
                     depths_head[i][mask_head_hw[i,...]] = (r[mask_head_hw[i,...]]-np.min(r[mask_head_hw[i,...]])).astype(np.float32)/(np.max(r[mask_head_hw[i,...]]) - np.min(r[mask_head_hw[i,...]])+1e-6)
                 depth_head = np.stack(depths_head)
                 
-                if self.opt.debug:
+                # if self.opt.debug:
 
-                    for i, r in enumerate(rgb_head_hw):
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_head.png'), (r*255).astype(np.uint8))
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_mask.png'), (mask_head_hw[i,...]*255).astype(np.uint8))
+                #     for i, r in enumerate(rgb_head_hw):
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_head.png'), (r*255).astype(np.uint8))
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_mask.png'), (mask_head_hw[i,...]*255).astype(np.uint8))
 
-                    for i, r in enumerate(depth_head):
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_head_depth.png'), (r*255).astype(np.uint8))
-                    for i, r in enumerate(normal_head):
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_head_normal.png'), r)
+                #     for i, r in enumerate(depth_head):
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_head_depth.png'), (r*255).astype(np.uint8))
+                #     for i, r in enumerate(normal_head):
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_head_normal.png'), r)
 
                 self.rgb_head = torch.from_numpy(rgb_head_hw).permute(0,3,1,2).contiguous().to(self.device)
                 self.mask_head = torch.from_numpy(rgba_head_hw[..., 3] > 0.5).to(self.device)
@@ -637,24 +637,24 @@ class Trainer(object):
                 depth_hand_right = np.stack(depths_hand_right)
                 
 
-                if self.opt.debug:
-                    for i, r in enumerate(rgb_hand_left_hw):
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_left.png'), (r*255).astype(np.uint8))
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_mask_hand_left.png'), (mask_hand_left_hw[i,...]*255).astype(np.uint8))
+                # if self.opt.debug:
+                #     for i, r in enumerate(rgb_hand_left_hw):
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_left.png'), (r*255).astype(np.uint8))
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_mask_hand_left.png'), (mask_hand_left_hw[i,...]*255).astype(np.uint8))
                     
-                    for i, r in enumerate(depth_hand_left):
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_left_depth.png'), (r*255).astype(np.uint8))
-                    for i, r in enumerate(normal_hand_left):
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_left_normal.png'), r)
+                #     for i, r in enumerate(depth_hand_left):
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_left_depth.png'), (r*255).astype(np.uint8))
+                #     for i, r in enumerate(normal_hand_left):
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_left_normal.png'), r)
                     
-                    for i, r in enumerate(rgb_hand_right_hw):
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_right.png'), (r*255).astype(np.uint8))
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_mask_hand_right.png'), (mask_hand_right_hw[i,...]*255).astype(np.uint8))
+                #     for i, r in enumerate(rgb_hand_right_hw):
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_right.png'), (r*255).astype(np.uint8))
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_mask_hand_right.png'), (mask_hand_right_hw[i,...]*255).astype(np.uint8))
                     
-                    for i, r in enumerate(depth_hand_right):
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_right_depth.png'), (r*255).astype(np.uint8))
-                    for i, r in enumerate(normal_hand_right):
-                        cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_right_normal.png'), r)
+                #     for i, r in enumerate(depth_hand_right):
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_right_depth.png'), (r*255).astype(np.uint8))
+                #     for i, r in enumerate(normal_hand_right):
+                #         cv2.imwrite(os.path.join(self.workspace, f'{i}_hand_right_normal.png'), r)
                 
                 self.rgb_hand_left = torch.from_numpy(rgb_hand_left_hw).permute(0,3,1,2).contiguous().to(self.device)
                 self.mask_hand_left = torch.from_numpy(rgba_hand_left_hw[..., 3] > 0.5).to(self.device)
@@ -925,14 +925,14 @@ class Trainer(object):
             pred_depth_head = outputs_head['depth'].reshape(B, 1, HW_head_crop, HW_head_crop)
             pred_mask_head = outputs_head['weights_sum'].reshape(B, 1, HW_head_crop, HW_head_crop)
 
-            if self.opt.debug:
-                cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_depth.png'.format(self.global_step)), (pred_depth_head.reshape(B, HW_head_crop, HW_head_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
-                cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_mask.png'.format(self.global_step)), (pred_mask_head.reshape(B, HW_head_crop, HW_head_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
+            # if self.opt.debug:
+            #     cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_depth.png'.format(self.global_step)), (pred_depth_head.reshape(B, HW_head_crop, HW_head_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
+            #     cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_mask.png'.format(self.global_step)), (pred_mask_head.reshape(B, HW_head_crop, HW_head_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
 
             if 'normal_image' in outputs:
                 pred_normal_head = outputs_head['normal_image'].reshape(B, HW_head_crop, HW_head_crop, 3)
-                if self.opt.debug:
-                    cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_normal.png'.format(self.global_step)), (pred_normal_head[0,...].detach().cpu().numpy()*255).astype('uint8'))
+                # if self.opt.debug:
+                #     cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_normal.png'.format(self.global_step)), (pred_normal_head[0,...].detach().cpu().numpy()*255).astype('uint8'))
         if do_rgbd_loss and self.head_recon>0 and use_hand:
             HW_hand = 1024 if self.opt.dmtet else np.sqrt(rays_o_hand_left.shape[1]).astype('int')
             HW_hand_crop = 128 if self.opt.dmtet else HW_hand
@@ -943,51 +943,51 @@ class Trainer(object):
                                                       ambient_ratio=ambient_ratio, shading=shading, binarize=binarize, hand_recon=True, bbox = bbox_hand_left)
                 pred_depth_hand_left = outputs_hand_left['depth'].reshape(B, 1, HW_hand_crop, HW_hand_crop)
                 pred_mask_hand_left = outputs_hand_left['weights_sum'].reshape(B, 1, HW_hand_crop, HW_hand_crop)
-                if self.opt.debug:
-                    cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_left_depth.png'.format(self.global_step)), (pred_depth_hand_left.reshape(B, HW_hand_left_crop, HW_hand_left_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
-                    cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_left_mask.png'.format(self.global_step)), (pred_mask_hand_left.reshape(B, HW_hand_left_crop, HW_hand_left_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
+                # if self.opt.debug:
+                #     cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_left_depth.png'.format(self.global_step)), (pred_depth_hand_left.reshape(B, HW_hand_left_crop, HW_hand_left_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
+                #     cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_left_mask.png'.format(self.global_step)), (pred_mask_hand_left.reshape(B, HW_hand_left_crop, HW_hand_left_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
 
                 if 'normal_image' in outputs:
                     pred_normal_hand_left = outputs_hand_left['normal_image'].reshape(B, HW_hand_crop, HW_hand_crop, 3)
-                    if self.opt.debug:
-                        cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_left_normal.png'.format(self.global_step)), (pred_normal_hand_left[0,...].detach().cpu().numpy()*255).astype('uint8'))
+                    # if self.opt.debug:
+                    #     cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_left_normal.png'.format(self.global_step)), (pred_normal_hand_left[0,...].detach().cpu().numpy()*255).astype('uint8'))
             else:
                 outputs_hand_right = self.model.render(rays_o_hand_right, rays_d_hand_right, mvp, HW_hand, HW_hand, 
                                                        poses=poses, staged=False, perturb=True, bg_color=bg_color_hand, dst_pose=dst_pose, 
                                                        ambient_ratio=ambient_ratio, shading=shading, binarize=binarize, hand_recon=True, bbox = bbox_hand_right)
                 pred_depth_hand_right = outputs_hand_right['depth'].reshape(B, 1, HW_hand_crop, HW_hand_crop)
                 pred_mask_hand_right = outputs_hand_right['weights_sum'].reshape(B, 1, HW_hand_crop, HW_hand_crop)
-                if self.opt.debug:
-                    cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_right_depth.png'.format(self.global_step)), (pred_depth_hand_right.reshape(B, HW_hand_right_crop, HW_hand_right_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
-                    cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_right_mask.png'.format(self.global_step)), (pred_mask_hand_right.reshape(B, HW_hand_right_crop, HW_hand_right_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
+                # if self.opt.debug:
+                #     cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_right_depth.png'.format(self.global_step)), (pred_depth_hand_right.reshape(B, HW_hand_right_crop, HW_hand_right_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
+                #     cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_right_mask.png'.format(self.global_step)), (pred_mask_hand_right.reshape(B, HW_hand_right_crop, HW_hand_right_crop)[0].detach().cpu().numpy()*255).astype('uint8'))
 
                 if 'normal_image' in outputs:
                     pred_normal_hand_right = outputs_hand_right['normal_image'].reshape(B, HW_hand_crop, HW_hand_crop, 3)
-                    if self.opt.debug:
-                        cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_right_normal.png'.format(self.global_step)), (pred_normal_hand_right[0,...].detach().cpu().numpy()*255).astype('uint8'))
+                    # if self.opt.debug:
+                    #     cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_right_normal.png'.format(self.global_step)), (pred_normal_hand_right[0,...].detach().cpu().numpy()*255).astype('uint8'))
 
         if as_latent:
             # abuse normal & mask as latent code for faster geometry initialization (ref: fantasia3D)
             pred_rgb = torch.cat([outputs['image'], outputs['weights_sum'].unsqueeze(-1)], dim=-1).reshape(B, H, W, 4).permute(0, 3, 1, 2).contiguous() # [B, 4, H, W]
         else:
             pred_rgb = outputs['image'].reshape(B, H, W, 3).permute(0, 3, 1, 2).contiguous() # [B, 3, H, W]
-            if self.opt.debug:
-                cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_body_rgb.png'.format(self.global_step)), (pred_rgb[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
+            # if self.opt.debug:
+            #     cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_body_rgb.png'.format(self.global_step)), (pred_rgb[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
 
             if do_rgbd_loss and self.head_recon>0 and not use_hand:
                 pred_rgb_head = outputs_head['image'].reshape(B, HW_head_crop, HW_head_crop, 3).permute(0, 3, 1, 2).contiguous() # [B, 3, H, W]
-                if self.opt.debug:
-                    cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_rgb.png'.format(self.global_step)), (pred_rgb_head[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
+                # if self.opt.debug:
+                #     cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_rgb.png'.format(self.global_step)), (pred_rgb_head[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
             
             if do_rgbd_loss and self.hand_recon>0 and use_hand:
                 if use_left_hand:
                     pred_rgb_hand_left = outputs_hand_left['image'].reshape(B, HW_hand_crop, HW_hand_crop, 3).permute(0, 3, 1, 2).contiguous() # [B, 3, H, W]
-                    if self.opt.debug:
-                        cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_left_rgb.png'.format(self.global_step)), (pred_rgb_hand_left[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
+                    # if self.opt.debug:
+                    #     cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_left_rgb.png'.format(self.global_step)), (pred_rgb_hand_left[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
                 else:
                     pred_rgb_hand_right = outputs_hand_right['image'].reshape(B, HW_hand_crop, HW_hand_crop, 3).permute(0, 3, 1, 2).contiguous() # [B, 3, H, W]
-                    if self.opt.debug:
-                        cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_right_rgb.png'.format(self.global_step)), (pred_rgb_hand_right[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
+                    # if self.opt.debug:
+                    #     cv2.imwrite(os.path.join(self.workspace, 'hand_temp/{}_right_rgb.png'.format(self.global_step)), (pred_rgb_hand_right[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
 
 
         # known view loss
@@ -1045,8 +1045,8 @@ class Trainer(object):
             # cv2.imwrite('check_mesh/pred_rgb1.png', (pred_rgb[0].permute(1,2,0).detach().cpu().numpy()*255).astype(np.uint8))
             loss_rgb = F.mse_loss(pred_rgb, gt_rgb) + self.lpips(pred_rgb*2-1, gt_rgb*2-1)
             loss = self.opt.lambda_rgb * loss_rgb
-            if self.opt.debug:
-                cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_gt_rgb.png'.format(self.global_step)), (gt_rgb[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
+            # if self.opt.debug:
+            #     cv2.imwrite(os.path.join(self.workspace, 'head_temp/{}_gt_rgb.png'.format(self.global_step)), (gt_rgb[0].detach().permute(1,2,0).cpu().numpy()*255).astype('uint8'))
             if self.head_recon>0 and not use_hand:
                 gt_rgb_head = gt_rgb_head * gt_mask_head[:, None].float() + bg_color_head.reshape(B, HW_head_crop, HW_head_crop, 3).permute(0,3,1,2).contiguous() * (1 - gt_mask_head[:, None].float())
                 loss_rgb_head = F.mse_loss(pred_rgb_head, gt_rgb_head) + self.lpips(pred_rgb_head*2-1, gt_rgb_head*2-1)
@@ -1715,7 +1715,7 @@ class Trainer(object):
         for data in loader:
 
             # update grid every 16 steps
-            if (self.model.cuda_ray or self.model.taichi_ray) and self.global_step % self.opt.update_extra_interval == 0:
+            if (self.model.cuda_ray) and self.global_step % self.opt.update_extra_interval == 0:
                 with torch.cuda.amp.autocast(enabled=self.fp16):
                     self.model.update_extra_state()
 

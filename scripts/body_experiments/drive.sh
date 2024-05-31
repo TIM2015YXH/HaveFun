@@ -18,12 +18,11 @@ workspace=out/${dataset}/${identity}/camera_rotate_tpose_${N_view}
 echo "image_config: $image_config"
 echo "workspace: $workspace"
 
-
-CUDA_VISIBLE_DEVICES=0 python main.py \
+python main.py \
     --image_config ${image_config} \
     --workspace ${workspace} \
     --dmtet \
-    --init_with ${workspace}/checkpoints/df_ep0175.pth \
+    --init_with ${workspace}/checkpoints/df_ep0075.pth \
     --test \
     --pose_path ${data_dir}/${dataset}/driving/${target}/Take${take}_${size}.npy \
     --smplx_path models/smplx \

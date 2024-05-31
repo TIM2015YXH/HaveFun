@@ -20,7 +20,7 @@ echo "workspace: $workspace"
 iters=17500
 echo "Maximum iters: ${iters}"
 
-CUDA_VISIBLE_DEVICES=0 python main.py \
+python main.py \
     --image_config $image_config \
     --workspace $workspace \
     --dmtet \

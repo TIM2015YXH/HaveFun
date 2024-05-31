@@ -299,7 +299,6 @@ class NeRFRenderer(nn.Module):
         self.max_level = None
         self.dmtet = opt.dmtet
         self.cuda_ray = opt.cuda_ray
-        self.taichi_ray = opt.taichi_ray
         self.min_near = opt.min_near
         self.density_thresh = opt.density_thresh
         self.workspace = opt.workspace
@@ -351,30 +350,7 @@ class NeRFRenderer(nn.Module):
                 self.glctx = dr.RasterizeCudaContext()
             else:
                 self.glctx = dr.RasterizeGLContext()
-        
-        if self.taichi_ray:
-            from einops import rearrange
-            from taichi_modules import RayMarcherTaichi
-            from taichi_modules import VolumeRendererTaichi
-            from taichi_modules import RayAABBIntersector as RayAABBIntersectorTaichi
-            from taichi_modules import raymarching_test as raymarching_test_taichi
-            from taichi_modules import composite_test as composite_test_fw
-            from taichi_modules import packbits as packbits_taichi
-            self.rearrange = rearrange
-            self.packbits_taichi = packbits_taichi
-            self.ray_aabb_intersector = RayAABBIntersectorTaichi
-            self.raymarching_test_taichi = raymarching_test_taichi
-            self.composite_test_fw = composite_test_fw
-            self.ray_marching = RayMarcherTaichi(batch_size=4096) # TODO: hard encoded batch size
-            self.volume_render = VolumeRendererTaichi(batch_size=4096) # TODO: hard encoded batch size
-            # density grid
-            density_grid = torch.zeros([self.cascade, self.grid_size ** 3]) # [CAS, H * H * H]
-            density_bitfield = torch.zeros(self.cascade * self.grid_size ** 3 // 8, dtype=torch.uint8) # [CAS * H * H * H // 8]
-            self.register_buffer('density_grid', density_grid)
-            self.register_buffer('density_bitfield', density_bitfield)
-            self.mean_density = 0
-            self.iter_density = 0
-    
+           
     @torch.no_grad()
     def density_blob(self, x):
         # x: [B, N, 3]
@@ -398,7 +374,7 @@ class NeRFRenderer(nn.Module):
         raise NotImplementedError()
 
     def reset_extra_state(self):
-        if not (self.cuda_ray or self.taichi_ray):
+        if not (self.cuda_ray):
             return 
         # density grid
         self.density_grid.zero_()
@@ -988,6 +964,7 @@ class NeRFRenderer(nn.Module):
                 verts[:,0] *= -1
                 faces = faces[:, [0,2,1]]
                 dst_shape = None
+                dst_pose = dst_pose.reshape(1,-1)
                 if dst_pose.shape[-1] == 58:
                     dst_shape = dst_pose[...,:10].reshape(1,10)
                     dst_pose = dst_pose[...,10:].reshape(1,16,3)
@@ -1237,12 +1214,12 @@ class NeRFRenderer(nn.Module):
                 verts_deform = verts_deform - root_dst #[B,N,3]
                 verts_deform = verts_deform*scale
                 
-                # check mesh
-                if self.opt.debug:
-                    save_path = os.path.join(self.workspace, 'mesh_check')
-                    os.makedirs(save_path, exist_ok=True)
-                    save_mesh(verts.detach().cpu().numpy(), faces.detach().cpu().numpy().astype(np.int32), os.path.join(save_path, 'dmtet.ply'))
-                    save_mesh(verts_deform.detach().cpu().numpy(), faces.detach().cpu().numpy().astype(np.int32),os.path.join(save_path, 'dmtet_deform.ply'))
+                # # check mesh
+                # if self.opt.debug:
+                #     save_path = os.path.join(self.workspace, 'mesh_check')
+                #     os.makedirs(save_path, exist_ok=True)
+                #     save_mesh(verts.detach().cpu().numpy(), faces.detach().cpu().numpy().astype(np.int32), os.path.join(save_path, 'dmtet.ply'))
+                #     save_mesh(verts_deform.detach().cpu().numpy(), faces.detach().cpu().numpy().astype(np.int32),os.path.join(save_path, 'dmtet_deform.ply'))
 
             else:
                 raise Exception("Need a template model to drive the mesh")
@@ -1448,147 +1425,12 @@ class NeRFRenderer(nn.Module):
 
         return results
 
-    def run_taichi(self, rays_o, rays_d, light_d=None, ambient_ratio=1.0, shading='albedo', bg_color=None, perturb=False, T_thresh=1e-4, **kwargs):
-        # rays_o, rays_d: [B, N, 3], assumes B == 1
-        # return: image: [B, N, 3], depth: [B, N]
-
-        prefix = rays_o.shape[:-1]
-        rays_o = rays_o.contiguous().view(-1, 3)
-        rays_d = rays_d.contiguous().view(-1, 3)
-
-        N = rays_o.shape[0] # N = B * N, in fact
-        device = rays_o.device
-
-        # pre-calculate near far
-        exp_step_factor = kwargs.get('exp_step_factor', 0.)
-        MAX_SAMPLES = 1024
-        NEAR_DISTANCE = 0.01
-        center = torch.zeros(1, 3)
-        half_size = torch.ones(1, 3)
-        _, hits_t, _ = self.ray_aabb_intersector.apply(rays_o, rays_d, center, half_size, 1)
-        hits_t[(hits_t[:, 0, 0] >= 0) & (hits_t[:, 0, 0] < NEAR_DISTANCE), 0, 0] = NEAR_DISTANCE
-
-        # TODO: should sample different light_d for each batch... but taichi end doesn't have a flatten_ray implemented currently...
-        # random sample light_d if not provided
-        if light_d is None:
-            # gaussian noise around the ray origin, so the light always face the view dir (avoid dark face)
-            light_d = (rays_o[0] + torch.randn(3, device=device, dtype=torch.float))
-            light_d = safe_normalize(light_d)
-
-        results = {}
-
-        if self.training:
-            rays_a, xyzs, dirs, deltas, ts, _ = self.ray_marching(rays_o, rays_d, hits_t[:, 0], self.density_bitfield, self.cascade, self.bound, exp_step_factor, self.grid_size, MAX_SAMPLES)
-            dirs = safe_normalize(dirs)
-            # plot_pointcloud(xyzs.reshape(-1, 3).detach().cpu().numpy())
-            sigmas, rgbs, normals = self(xyzs, dirs, light_d, ratio=ambient_ratio, shading=shading)
-            _, weights_sum, depth, image, weights = self.volume_render(sigmas, rgbs, deltas, ts, rays_a, kwargs.get('T_threshold', 1e-4))
-            
-            # normals related regularizations
-            if self.opt.lambda_orient > 0 and normals is not None:
-                # orientation loss 
-                loss_orient = weights.detach() * (normals * dirs).sum(-1).clamp(min=0) ** 2
-                results['loss_orient'] = loss_orient.mean()
-            
-            if self.opt.lambda_3d_normal_smooth > 0 and normals is not None:
-                normals_perturb = self.normal(xyzs + torch.randn_like(xyzs) * 1e-2)
-                results['loss_normal_perturb'] = (normals - normals_perturb).abs().mean()
-            
-            if (self.opt.lambda_2d_normal_smooth > 0 or self.opt.lambda_normal > 0) and normals is not None:
-                _, _, _, normal_image, _ = self.volume_render(sigmas.detach(), (normals + 1) / 2, deltas, ts, rays_a, kwargs.get('T_threshold', 1e-4))
-                results['normal_image'] = normal_image
-            
-            # weights normalization
-            results['weights'] = weights
-
-        else:
-        
-            # allocate outputs 
-            dtype = torch.float32
-            
-            weights_sum = torch.zeros(N, dtype=dtype, device=device)
-            depth = torch.zeros(N, dtype=dtype, device=device)
-            image = torch.zeros(N, 3, dtype=dtype, device=device)
-            
-            n_alive = N
-            rays_alive = torch.arange(n_alive, dtype=torch.int32, device=device) # [N]
-            rays_t = hits_t[:, 0, 0]
-            step = 0
-            
-            min_samples = 1 if exp_step_factor == 0 else 4
-
-            while step < self.opt.max_steps: # hard coded max step
-
-                # count alive rays 
-                n_alive = rays_alive.shape[0]
-
-                # exit loop
-                if n_alive <= 0:
-                    break
-
-                # decide compact_steps
-                # n_step = max(min(N // n_alive, 8), 1)
-                n_step = max(min(N // n_alive, 64), min_samples)
-
-                xyzs, dirs, deltas, ts, N_eff_samples = \
-                self.raymarching_test_taichi(rays_o, rays_d, hits_t[:, 0], rays_alive,
-                                    self.density_bitfield, self.cascade,
-                                    self.bound, exp_step_factor,
-                                    self.grid_size, MAX_SAMPLES, n_step)
-
-                xyzs = self.rearrange(xyzs, 'n1 n2 c -> (n1 n2) c')
-                dirs = self.rearrange(dirs, 'n1 n2 c -> (n1 n2) c')
-                dirs = safe_normalize(dirs)
-                valid_mask = ~torch.all(dirs == 0, dim=1)
-                if valid_mask.sum() == 0:
-                    break
-
-                sigmas = torch.zeros(len(xyzs), device=device)
-                rgbs = torch.zeros(len(xyzs), 3, device=device)
-                normals = torch.zeros(len(xyzs), 3, device=device)
-
-                sigmas[valid_mask], _rgbs, normals = self(xyzs[valid_mask], dirs[valid_mask], light_d, ratio=ambient_ratio, shading=shading)
-                rgbs[valid_mask] = _rgbs.float()
-                sigmas = self.rearrange(sigmas, '(n1 n2) -> n1 n2', n2=n_step)
-                rgbs = self.rearrange(rgbs, '(n1 n2) c -> n1 n2 c', n2=n_step)
-                if normals is not None:
-                    normals = self.rearrange(normals, '(n1 n2) c -> n1 n2 c', n2=n_step)
-
-                self.composite_test_fw(sigmas, rgbs, deltas, ts, hits_t[:,0], rays_alive,
-                                    kwargs.get('T_threshold', 1e-4), N_eff_samples,
-                                    weights_sum, depth, image)
-
-                rays_alive = rays_alive[rays_alive >= 0]
-
-                step += n_step
-
-        # mix background color
-        if bg_color is None:
-            if self.opt.bg_radius > 0:
-                # use the bg model to calculate bg_color
-                bg_color = self.background(rays_d) # [N, 3]
-            else:
-                bg_color = 1
-
-        image = image + self.rearrange(1 - weights_sum, 'n -> n 1') * bg_color
-        image = image.view(*prefix, 3)
-
-        depth = depth.view(*prefix)
-
-        weights_sum = weights_sum.reshape(*prefix)
-
-        results['image'] = image
-        results['depth'] = depth
-        results['weights_sum'] = weights_sum
-        
-        return results
-
 
     @torch.no_grad()
     def update_extra_state(self, decay=0.95, S=128):
         # call before each epoch to update extra states.
 
-        if not (self.cuda_ray or self.taichi_ray):
+        if not (self.cuda_ray):
             return 
         
         ### update density grid
@@ -1636,9 +1478,6 @@ class NeRFRenderer(nn.Module):
         density_thresh = min(self.mean_density, self.density_thresh)
         if self.cuda_ray:
             self.density_bitfield = raymarching.packbits(self.density_grid, density_thresh, self.density_bitfield)
-        elif self.taichi_ray:
-            self.packbits_taichi(self.density_grid.reshape(-1).contiguous(), density_thresh, self.density_bitfield)
-
         # print(f'[density grid] min={self.density_grid.min().item():.4f}, max={self.density_grid.max().item():.4f}, mean={self.mean_density:.4f}, occ_rate={(self.density_grid > density_thresh).sum() / (128**3 * self.cascade):.3f}')
 
 
@@ -1652,8 +1491,6 @@ class NeRFRenderer(nn.Module):
             results = self.run_dmtet(rays_o, rays_d, mvp, h, w, poses=poses, bbox=bbox, **kwargs)
         elif self.cuda_ray:
             results = self.run_cuda(rays_o, rays_d, **kwargs)
-        elif self.taichi_ray:
-            results = self.run_taichi(rays_o, rays_d, **kwargs)
         else:
             if staged:
                 depth = torch.empty((B, N), device=device)

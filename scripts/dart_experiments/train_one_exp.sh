@@ -19,7 +19,7 @@ then
         --lambda_normal 0 \
         --lambda_depth 0 \
         --lambda_mask 1000 \
-        --init_with data/FS-DART/training/$identity/779points_scaled_$identity.obj \
+        --init_with data/FS-DART/hand/$identity/779points_scaled_$identity.obj \
         --save_mesh \
         --test_interval 5 \
         --bg_radius 0 \
@@ -43,7 +43,7 @@ then
         --lambda_normal 0 \
         --lambda_depth 0 \
         --lambda_mask 1000 \
-        --init_with data/FS-DART/training/$identity/779points_scaled_$identity.obj \
+        --init_with data/FS-DART/hand/$identity/779points_scaled_$identity.obj \
         --test_interval 5 \
         --bg_radius 0 \
         --various_pose \
@@ -74,7 +74,7 @@ then
         --lambda_normal 0 \
         --lambda_depth 0 \
         --lambda_mask 1000 \
-        --init_with data/FS-DART/training/$identity/779points_scaled_$identity.obj \
+        --init_with data/FS-DART/hand/$identity/779points_scaled_$identity.obj \
         --save_mesh \
         --test_interval 5 \
         --bg_radius 0 \
@@ -98,7 +98,7 @@ then
         --lambda_normal 0 \
         --lambda_depth 0 \
         --lambda_mask 1000 \
-        --init_with data/FS-DART/training/$identity/779points_scaled_$identity.obj \
+        --init_with data/FS-DART/hand/$identity/779points_scaled_$identity.obj \
         --test_interval 5 \
         --bg_radius 0 \
         --various_pose \
