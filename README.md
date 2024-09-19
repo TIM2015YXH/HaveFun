@@ -15,7 +15,7 @@ Xihe Yang<sup>*</sup>&emsp;Xingyu Chen<sup>*&dagger;</sup>&emsp;Daiheng Gao&emsp
 </div>
 
 <div>
-   <strong>Arxiv 2023</strong>
+   <strong>CVPR 2024</strong>
 </div>
 
 <div>
@@ -49,16 +49,13 @@ This repository will contain the official implementation of _HAVE-FUN: Human Ava
 ## Set up Dataset
 <!-- --- -->
 
-We release two dataset benchmarks, [FS-XHumans](https://drive.google.com/drive/folders/1bXcQT3TJbdh0AfNIG-l8kPQvcGmvadxt?usp=sharing) and [FS-DART](https://drive.google.com/drive/folders/1QK9yuyqAf6IAujTZGVTqv7jh7z4uPMrP?usp=sharing). Our FS-XHumans dataset is built on really captured [XHumans](https://skype-line.github.io/projects/X-Avatar/) and Our FS-DART is a synthetic dataset based on the [DART](https://dart2022.github.io/). Checkout the original dataset for Licensing Information.
+We release hand dataset benchmarks, [FS-DART](https://drive.google.com/drive/folders/1QK9yuyqAf6IAujTZGVTqv7jh7z4uPMrP?usp=sharing). FS-DART is a synthetic dataset based on the [DART](https://dart2022.github.io/). Checkout the original dataset for Licensing Information. We will release FS-Human later to meet the licensing requirements of XHuman(https://skype-line.github.io/projects/X-Avatar/).
 
 Put the download data under data with following folder structure
 ```
 ./
 ├── ...
 └── data
-    ├── FS-Human
-        └── training
-        └── driving
     ├── FS-DART
         └── training
         └── init
